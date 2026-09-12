@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.lib.subsystems;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.w8wjb.ftc.AdafruitNeoDriver;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.lib.vendor.AdafruitNeoDriver;
 
 public class LEDSubsystem extends SubsystemBase {
     private static final int STRING_LENGTH = 50; // todo: change

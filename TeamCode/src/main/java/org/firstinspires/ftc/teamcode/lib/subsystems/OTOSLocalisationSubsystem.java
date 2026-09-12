@@ -18,7 +18,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
-import java.util.Optional;
 
 public class OTOSLocalisationSubsystem {
     private static final double OTOS_LINEAR_SCALAR = 1.0;
@@ -28,11 +27,6 @@ public class OTOSLocalisationSubsystem {
             DistanceUnit.METER, -0.13, -0.16, 0.045, 0);
     private static final YawPitchRollAngles CAMERA_ORIENTATION = new YawPitchRollAngles(AngleUnit.DEGREES,
             180, -45, 0, 0);
-    private static final IndexSubsystem.Ball[][] OBELISK_PATTERNS = {
-            {IndexSubsystem.Ball.GREEN, IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.PURPLE},
-            {IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.GREEN, IndexSubsystem.Ball.PURPLE},
-            {IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.GREEN},
-    };
     private final Telemetry telemetry;
     private final SparkFunOTOS otosSensor;
     private final AprilTagProcessor aprilTag;
@@ -40,7 +34,6 @@ public class OTOSLocalisationSubsystem {
     private SparkFunOTOS.Pose2D robotPose = new SparkFunOTOS.Pose2D();
     private final IMU imu;
     private boolean initialised = false;
-    private int obeliskId = -1;
 
     public OTOSLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -98,14 +91,6 @@ public class OTOSLocalisationSubsystem {
         return robotPose;
     }
 
-    /**
-     * @return A 3-length array of {@link IndexSubsystem.Ball} indicating the motif for the game, or an empty optional if the obelisk has not yet been detected.
-     */
-    public Optional<IndexSubsystem.Ball[]> getMotif() {
-        if (obeliskId == -1) return Optional.empty();
-        return Optional.of(OBELISK_PATTERNS[obeliskId - 21]);
-    }
-
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
         telemetry.addData("Robot Pose", robotPose.toString());
@@ -118,18 +103,12 @@ public class OTOSLocalisationSubsystem {
         robotPose = otosSensor.getPosition();
 
         // early return if we don't need to do apriltag stuff anymore
-        if (initialised && obeliskId != -1) return;
+        if (initialised) return;
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
 
         for (AprilTagDetection detection : freshDetections) {
-            // handle obelisk tags
-            if (detection.metadata.id >= 21 && detection.metadata.id <= 23) {
-                obeliskId = detection.metadata.id;
-                continue;
-            }
-
             // handle localisation initialisation
             if (!initialised) {
                 robotPose = new SparkFunOTOS.Pose2D(

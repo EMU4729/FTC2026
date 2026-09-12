@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.lib;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.lib.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.lib.subsystems.IndexSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.OTOSLocalisationSubsystem;
 
 public class GyroTurn {
@@ -34,7 +33,7 @@ public class GyroTurn {
 
     public void execute() {
         double targetYaw = startYaw + targetYawDelta;
-        double error = IndexSubsystem.wrappedSignedAngleBetween(getYaw(), targetYaw);
+        double error = Utils.wrappedSignedAngleBetween(getYaw(), targetYaw);
         telemetry.addData("Gyro Turn Error", error);
         telemetry.update();
         drive.driveRobotRelative(0, 0, -1.5 * error);
@@ -42,7 +41,7 @@ public class GyroTurn {
 
     public boolean isFinished() {
         double targetYaw = startYaw + targetYawDelta;
-        double error = IndexSubsystem.wrappedSignedAngleBetween(getYaw(), targetYaw);
+        double error = Utils.wrappedSignedAngleBetween(getYaw(), targetYaw);
         return Math.abs(error) < 0.1;
     }
 
