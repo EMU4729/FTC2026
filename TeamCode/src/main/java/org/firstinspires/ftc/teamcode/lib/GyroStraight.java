@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.lib;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.lib.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.lib.subsystems.IndexSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.OTOSLocalisationSubsystem;
 
 public class GyroStraight {
@@ -36,7 +35,7 @@ public class GyroStraight {
     }
 
     public void execute() {
-        double error = IndexSubsystem.wrappedSignedAngleBetween(getYaw(), targetYaw);
+        double error = Utils.wrappedSignedAngleBetween(getYaw(), targetYaw);
         telemetry.addData("Gyro Straight Error", error);
         telemetry.update();
         drive.driveRobotRelative(x, y, -2 * error);
