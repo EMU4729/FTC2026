@@ -28,10 +28,6 @@ public class PinpointLocalisationSubsystem {
             DistanceUnit.METER, -0.13, -0.16, 0.045, 0);
     private static final YawPitchRollAngles CAMERA_ORIENTATION = new YawPitchRollAngles(AngleUnit.DEGREES,
             180, -45, 0, 0);
-    private static final IndexSubsystem.Ball[][] OBELISK_PATTERNS = {
-            {IndexSubsystem.Ball.GREEN, IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.PURPLE},
-            {IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.GREEN, IndexSubsystem.Ball.PURPLE},
-            {IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.PURPLE, IndexSubsystem.Ball.GREEN},
     };
     private final Telemetry telemetry;
     private final GoBildaPinpointDriver pinpoint;
@@ -102,14 +98,6 @@ public class PinpointLocalisationSubsystem {
      */
     public Pose2D getPose() {
         return robotPose;
-    }
-
-    /**
-     * @return A 3-length array of {@link IndexSubsystem.Ball} indicating the motif for the game, or an empty optional if the obelisk has not yet been detected.
-     */
-    public Optional<IndexSubsystem.Ball[]> getMotif() {
-        if (obeliskId == -1) return Optional.empty();
-        return Optional.of(OBELISK_PATTERNS[obeliskId - 21]);
     }
 
     private void updateTelemetry() {
