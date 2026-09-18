@@ -35,7 +35,6 @@ public class PinpointLocalisationSubsystem {
     private final VisionPortal visionPortal;
     private final IMU imu;
     private boolean initialised = false;
-    private int obeliskId = -1;
     private Pose2D robotPose = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0); // using meter because i don't know what to use - revise later
     public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -114,17 +113,10 @@ public class PinpointLocalisationSubsystem {
         updateTelemetry(); // updating telem AFTER updating pinpoint, old method called before updating
 
         // early return if we don't need to do apriltag stuff anymore
-        if (initialised && obeliskId != -1) return;
+        if (initialised) return;
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
-
-        for (AprilTagDetection detection : freshDetections) {
-            // handle obelisk tags
-            if (detection.metadata.id >= 21 && detection.metadata.id <= 23) {
-                obeliskId = detection.metadata.id;
-                continue; // !! isn't this like skipping the rest of the loop? idk i might just be tweaking
-            }
 
             // handle localisation initialisation
             if (!initialised && detection.robotPose != null) {
