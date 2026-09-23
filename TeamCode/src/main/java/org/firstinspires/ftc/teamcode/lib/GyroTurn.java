@@ -3,16 +3,16 @@ package org.firstinspires.ftc.teamcode.lib;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.lib.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.lib.subsystems.OTOSLocalisationSubsystem;
+import org.firstinspires.ftc.teamcode.lib.subsystems.PinpointLocalisationSubsystem;
 
 public class GyroTurn {
     private final DriveSubsystem drive;
-    private final OTOSLocalisationSubsystem localisation;
+    private final PinpointLocalisationSubsystem localisation;
     private final Telemetry telemetry;
     private double targetYawDelta;
     private double startYaw;
 
-    public GyroTurn(double targetYawDelta, DriveSubsystem drive, OTOSLocalisationSubsystem localisation, Telemetry telemetry) {
+    public GyroTurn(double targetYawDelta, DriveSubsystem drive, PinpointLocalisationSubsystem localisation, Telemetry telemetry) {
         this.targetYawDelta = targetYawDelta;
         this.drive = drive;
         this.localisation = localisation;
@@ -24,6 +24,7 @@ public class GyroTurn {
     }
 
     private double getYaw() {
+        // TODO: Change this to use the pinpoint yaw, not the robot imu yaw
         return localisation.getIMUAngles().getYaw(AngleUnit.RADIANS);
     }
 
