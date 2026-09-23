@@ -20,7 +20,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-public class PinpointLocalisationSubsystem {
+public class PinpointLocalisationSubsystem extends SubsystemBase {
     private static final double X_POD_OFFSET_MM = -84.0; // honestly not sure how to do this lol. using "tuned for 3110-0002-0001 Product Insight #1"
     private static final double Y_POD_OFFSET_MM = -168.0; // edit these variables to pass through to pinpoint.setOffset
     private static final Position CAMERA_POSITION = new Position(
@@ -60,9 +60,6 @@ public class PinpointLocalisationSubsystem {
         pinpoint.setOffsets(X_POD_OFFSET_MM, Y_POD_OFFSET_MM, DistanceUnit.MM);
         pinpoint.resetPosAndIMU();
 
-        // starting position, will be updated by april tag positioning.
-        pinpoint.setPosition();
-
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -94,11 +91,12 @@ public class PinpointLocalisationSubsystem {
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
         telemetry.addData("Device Status", pinpoint.getDeviceStatus());
-        telemetry.addData("Robot Pose X (m)", pinpoint.getPosition().getX(DistanceUnit.METER));
-        telemetry.addData("Robot Pose Y (m)", pinpoint.getPosition().getY(DistanceUnit.METER));
-        telemetry.addData("Robot Heading (rad)", pinpoint.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("Robot Pose X (m)", getPose().getX(DistanceUnit.METER));
+        telemetry.addData("Robot Pose Y (m)", getPose().getY(DistanceUnit.METER));
+        telemetry.addData("Robot Heading (rad)", getPose().getHeading(AngleUnit.RADIANS));
     }
 
+    @Override
     public void periodic() {
         pinpoint.update();
         updateTelemetry(); // updating telem AFTER updating pinpoint, old method called before updating
@@ -108,10 +106,8 @@ public class PinpointLocalisationSubsystem {
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
-        AprilTagDetection detection = freshDetections.get(0);
-
-        // handle localisation initialisation
-        if (!initialised && detection.robotPose != null) {
+        for (AprilTagDetection detection : freshDetections) {
+            if (detection.robotPose == null) continue;
             Pose2D tagPose = new Pose2D(
                     DistanceUnit.METER,
                     detection.robotPose.getPosition().x,
@@ -122,6 +118,7 @@ public class PinpointLocalisationSubsystem {
             // Pass newly calibrated pose to Pinpoint computer
             pinpoint.setPosition(tagPose);
             initialised = true;
+            break;
         }
     }
 }
