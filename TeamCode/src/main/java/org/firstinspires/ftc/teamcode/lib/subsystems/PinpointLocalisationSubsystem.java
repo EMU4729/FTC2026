@@ -34,7 +34,6 @@ public class PinpointLocalisationSubsystem {
     private final VisionPortal visionPortal;
     private final IMU imu;
     private boolean initialised = false;
-    private Pose2D robotPose = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0); // using meter because i don't know what to use - revise later
 
     public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -53,7 +52,6 @@ public class PinpointLocalisationSubsystem {
 
         // setup pinpoint
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        robotPose = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0);
         pinpoint.setEncoderDirections(
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
                 GoBildaPinpointDriver.EncoderDirection.FORWARD
@@ -63,7 +61,7 @@ public class PinpointLocalisationSubsystem {
         pinpoint.resetPosAndIMU();
 
         // starting position, will be updated by april tag positioning.
-        pinpoint.setPosition(robotPose);
+        pinpoint.setPosition();
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -96,14 +94,13 @@ public class PinpointLocalisationSubsystem {
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
         telemetry.addData("Device Status", pinpoint.getDeviceStatus());
-        telemetry.addData("Robot Pose X (m)", robotPose.getX(DistanceUnit.METER));
-        telemetry.addData("Robot Pose Y (m)", robotPose.getY(DistanceUnit.METER));
-        telemetry.addData("Robot Heading (rad)", robotPose.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("Robot Pose X (m)", pinpoint.getPosition().getX(DistanceUnit.METER));
+        telemetry.addData("Robot Pose Y (m)", pinpoint.getPosition().getY(DistanceUnit.METER));
+        telemetry.addData("Robot Heading (rad)", pinpoint.getHeading(AngleUnit.RADIANS));
     }
 
     public void periodic() {
         pinpoint.update();
-        robotPose = pinpoint.getPosition();
         updateTelemetry(); // updating telem AFTER updating pinpoint, old method called before updating
 
         // early return if we don't need to do apriltag stuff anymore
@@ -124,7 +121,6 @@ public class PinpointLocalisationSubsystem {
             );
             // Pass newly calibrated pose to Pinpoint computer
             pinpoint.setPosition(tagPose);
-            robotPose = tagPose;
             initialised = true;
         }
     }
