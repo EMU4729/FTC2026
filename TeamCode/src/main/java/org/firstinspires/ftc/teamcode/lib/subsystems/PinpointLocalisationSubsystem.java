@@ -73,13 +73,6 @@ public class PinpointLocalisationSubsystem {
     }
 
     /**
-     * @return Reference to GoBildaPinpointDriver.
-     */
-    public GoBildaPinpointDriver getPinpointDriver() {
-        return pinpoint;
-    }
-
-    /**
      * @return The yaw, pitch and roll angles, as reported by the IMU.
      */
     public YawPitchRollAngles getIMUAngles() {
@@ -97,7 +90,7 @@ public class PinpointLocalisationSubsystem {
      * @return The current pose of the robot.
      */
     public Pose2D getPose() {
-        return robotPose;
+        return pinpoint.getPosition();
     }
 
     private void updateTelemetry() {
