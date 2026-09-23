@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 import android.util.Size;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -19,23 +20,22 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-public class OTOSLocalisationSubsystem {
-    private static final double OTOS_LINEAR_SCALAR = 1.0;
-    private static final double OTOS_ANGULAR_SCALAR = 1.0;
-    private static final SparkFunOTOS.Pose2D OTOS_OFFSET = new SparkFunOTOS.Pose2D(0, 0, 0);
+public class PinpointLocalisationSubsystem extends SubsystemBase {
+    private static final double X_POD_OFFSET_MM = -84.0; // honestly not sure how to do this lol. using "tuned for 3110-0002-0001 Product Insight #1"
+    private static final double Y_POD_OFFSET_MM = -168.0; // edit these variables to pass through to pinpoint.setOffset
     private static final Position CAMERA_POSITION = new Position(
             DistanceUnit.METER, -0.13, -0.16, 0.045, 0);
     private static final YawPitchRollAngles CAMERA_ORIENTATION = new YawPitchRollAngles(AngleUnit.DEGREES,
             180, -45, 0, 0);
+
     private final Telemetry telemetry;
-    private final SparkFunOTOS otosSensor;
+    private final GoBildaPinpointDriver pinpoint;
     private final AprilTagProcessor aprilTag;
     private final VisionPortal visionPortal;
-    private SparkFunOTOS.Pose2D robotPose = new SparkFunOTOS.Pose2D();
     private final IMU imu;
     private boolean initialised = false;
 
-    public OTOSLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
+    public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
         // setup vision
@@ -50,18 +50,15 @@ public class OTOSLocalisationSubsystem {
                 .addProcessor(aprilTag)
                 .build();
 
-        // setup otos
-        otosSensor = hardwareMap.get(SparkFunOTOS.class, "otos");
-        otosSensor.setLinearUnit(DistanceUnit.METER);
-        otosSensor.setAngularUnit(AngleUnit.RADIANS);
-        otosSensor.setOffset(OTOS_OFFSET);
-        otosSensor.setLinearScalar(OTOS_LINEAR_SCALAR);
-        otosSensor.setAngularScalar(OTOS_ANGULAR_SCALAR);
-        otosSensor.calibrateImu();
-        otosSensor.resetTracking();
-
-        // starting position, will be updated by april tag positioning.
-        otosSensor.setPosition(robotPose);
+        // setup pinpoint
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        pinpoint.setEncoderDirections(
+                GoBildaPinpointDriver.EncoderDirection.FORWARD,
+                GoBildaPinpointDriver.EncoderDirection.FORWARD
+        );
+        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); // 2000 CPR w/ 32mm dia wheel - 2000/100.53 (circum) = 19.894
+        pinpoint.setOffsets(X_POD_OFFSET_MM, Y_POD_OFFSET_MM, DistanceUnit.MM);
+        pinpoint.resetPosAndIMU();
 
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -87,38 +84,41 @@ public class OTOSLocalisationSubsystem {
     /**
      * @return The current pose of the robot.
      */
-    public SparkFunOTOS.Pose2D getPose() {
-        return robotPose;
+    public Pose2D getPose() {
+        return pinpoint.getPosition();
     }
 
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
-        telemetry.addData("Robot Pose", robotPose.toString());
-        telemetry.addData("Robot Pose (OTOS)", otosSensor.getPosition().toString());
-        telemetry.addData("OTOS Connected?", otosSensor.isConnected());
+        telemetry.addData("Device Status", pinpoint.getDeviceStatus());
+        telemetry.addData("Robot Pose X (m)", getPose().getX(DistanceUnit.METER));
+        telemetry.addData("Robot Pose Y (m)", getPose().getY(DistanceUnit.METER));
+        telemetry.addData("Robot Heading (rad)", getPose().getHeading(AngleUnit.RADIANS));
     }
 
+    @Override
     public void periodic() {
-        updateTelemetry();
-        robotPose = otosSensor.getPosition();
+        pinpoint.update();
+        updateTelemetry(); // updating telem AFTER updating pinpoint, old method called before updating
 
         // early return if we don't need to do apriltag stuff anymore
         if (initialised) return;
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
-
         for (AprilTagDetection detection : freshDetections) {
-            // handle localisation initialisation
-            if (!initialised) {
-                robotPose = new SparkFunOTOS.Pose2D(
-                        detection.robotPose.getPosition().x,
-                        detection.robotPose.getPosition().y,
-                        detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
-                );
-                otosSensor.setPosition(robotPose);
-                initialised = true;
-            }
+            if (detection.robotPose == null) continue;
+            Pose2D tagPose = new Pose2D(
+                    DistanceUnit.METER,
+                    detection.robotPose.getPosition().x,
+                    detection.robotPose.getPosition().y,
+                    AngleUnit.RADIANS,
+                    detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
+            );
+            // Pass newly calibrated pose to Pinpoint computer
+            pinpoint.setPosition(tagPose);
+            initialised = true;
+            break;
         }
     }
 }

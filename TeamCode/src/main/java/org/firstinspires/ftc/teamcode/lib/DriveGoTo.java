@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.lib;
 
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.lib.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.lib.subsystems.OTOSLocalisationSubsystem;
+import org.firstinspires.ftc.teamcode.lib.subsystems.PinpointLocalisationSubsystem;
 
 public class DriveGoTo {
     private static final double TRANSLATION_P = 0.3; // TODO: tune
@@ -14,10 +15,10 @@ public class DriveGoTo {
     private static final double ROTATION_THRESH = 0.1; // TODO: tune
 
     private final DriveSubsystem drive;
-    private final OTOSLocalisationSubsystem localisation;
-    private final SparkFunOTOS.Pose2D target;
+    private final PinpointLocalisationSubsystem localisation;
+    private final Pose2D target;
 
-    public DriveGoTo(DriveSubsystem drive, OTOSLocalisationSubsystem localisation, SparkFunOTOS.Pose2D target) {
+    public DriveGoTo(DriveSubsystem drive, PinpointLocalisationSubsystem localisation, Pose2D target) {
         this.drive = drive;
         this.localisation = localisation;
         this.target = target;
@@ -29,36 +30,40 @@ public class DriveGoTo {
      * @param robotPose The current robot pose
      * @return The error between the current robot pose and the target robot pose
      */
-    private SparkFunOTOS.Pose2D getError(SparkFunOTOS.Pose2D robotPose) {
-        return new SparkFunOTOS.Pose2D(
-                target.x - robotPose.x,
-                target.y - robotPose.y,
-                target.h - robotPose.h);
+    private Pose2D getError(Pose2D robotPose) {
+        return new Pose2D(
+                DistanceUnit.METER,
+                target.getX(DistanceUnit.METER) - robotPose.getX(DistanceUnit.METER),
+                target.getY(DistanceUnit.METER) - robotPose.getY(DistanceUnit.METER),
+                AngleUnit.RADIANS,
+                target.getHeading(AngleUnit.RADIANS) - robotPose.getHeading(AngleUnit.RADIANS));
     }
 
     /**
      * Main looping logic for DriveGoTo. Should be called repeatedly until {@link DriveGoTo#atTarget()} returns true.
      */
     public void execute() {
-        SparkFunOTOS.Pose2D robotPose = localisation.getPose();
-        SparkFunOTOS.Pose2D error = getError(robotPose);
+        Pose2D robotPose = localisation.getPose();
+        Pose2D error = getError(robotPose);
 
-        double outputX = TRANSLATION_P * error.x;
+        double outputX = TRANSLATION_P * error.getX(DistanceUnit.METER);
         outputX += Math.copySign(outputX, TRANSLATION_FF);
-        double outputY = TRANSLATION_P * error.y;
+        double outputY = TRANSLATION_P * error.getY(DistanceUnit.METER);
         outputY += Math.copySign(outputY, TRANSLATION_FF);
-        double outputR = ROTATION_P * error.h;
+        double outputR = ROTATION_P * error.getHeading(AngleUnit.RADIANS);
         outputR += Math.copySign(outputR, ROTATION_FF);
 
-        drive.driveFieldRelative(outputX, outputY, outputR, robotPose.h);
+        drive.driveFieldRelative(outputX, outputY, outputR, robotPose.getHeading(AngleUnit.RADIANS));
     }
 
     /**
      * @return true if the robot is within an acceptable error of the target position.
      */
     public boolean atTarget() {
-        SparkFunOTOS.Pose2D robotPose = localisation.getPose();
-        SparkFunOTOS.Pose2D error = getError(robotPose);
-        return Math.abs(error.x) < TRANSLATION_THRESH && Math.abs(error.y) < TRANSLATION_THRESH && Math.abs(error.h) < ROTATION_THRESH;
+        Pose2D robotPose = localisation.getPose();
+        Pose2D error = getError(robotPose);
+        return (Math.abs(error.getX(DistanceUnit.METER)) < TRANSLATION_THRESH &&
+                Math.abs(error.getY(DistanceUnit.METER)) < TRANSLATION_THRESH &&
+                Math.abs(error.getHeading(AngleUnit.RADIANS)) < ROTATION_THRESH);
     }
 }
