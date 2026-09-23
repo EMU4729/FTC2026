@@ -24,8 +24,5 @@ jobs:
           distribution: "temurin"
           packages: 'platform-tools'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Build
         run: ./gradlew --no-daemon build
