@@ -19,7 +19,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
-import java.util.Optional;
 
 public class PinpointLocalisationSubsystem {
     private static final double X_POD_OFFSET_MM = -84.0; // honestly not sure how to do this lol. using "tuned for 3110-0002-0001 Product Insight #1"
@@ -28,7 +27,7 @@ public class PinpointLocalisationSubsystem {
             DistanceUnit.METER, -0.13, -0.16, 0.045, 0);
     private static final YawPitchRollAngles CAMERA_ORIENTATION = new YawPitchRollAngles(AngleUnit.DEGREES,
             180, -45, 0, 0);
-    };
+
     private final Telemetry telemetry;
     private final GoBildaPinpointDriver pinpoint;
     private final AprilTagProcessor aprilTag;
@@ -36,6 +35,7 @@ public class PinpointLocalisationSubsystem {
     private final IMU imu;
     private boolean initialised = false;
     private Pose2D robotPose = new Pose2D(DistanceUnit.METER, 0, 0, AngleUnit.RADIANS, 0); // using meter because i don't know what to use - revise later
+
     public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
@@ -71,10 +71,11 @@ public class PinpointLocalisationSubsystem {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
         )));
     }
+
     /**
      * @return Reference to GoBildaPinpointDriver.
      */
-    public GoBildaPinpointDriver getPinpointDriver(){
+    public GoBildaPinpointDriver getPinpointDriver() {
         return pinpoint;
     }
 
@@ -117,21 +118,21 @@ public class PinpointLocalisationSubsystem {
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
+        AprilTagDetection detection = freshDetections.get(0);
 
-            // handle localisation initialisation
-            if (!initialised && detection.robotPose != null) {
-                Pose2D tagPose = new Pose2D(
-                        DistanceUnit.METER,
-                        detection.robotPose.getPosition().x,
-                        detection.robotPose.getPosition().y,
-                        AngleUnit.RADIANS,
-                        detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
-                );
-                // Pass newly calibrated pose to Pinpoint computer
-                pinpoint.setPosition(tagPose);
-                robotPose = tagPose;
-                initialised = true;
-            }
+        // handle localisation initialisation
+        if (!initialised && detection.robotPose != null) {
+            Pose2D tagPose = new Pose2D(
+                    DistanceUnit.METER,
+                    detection.robotPose.getPosition().x,
+                    detection.robotPose.getPosition().y,
+                    AngleUnit.RADIANS,
+                    detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
+            );
+            // Pass newly calibrated pose to Pinpoint computer
+            pinpoint.setPosition(tagPose);
+            robotPose = tagPose;
+            initialised = true;
         }
     }
 }
