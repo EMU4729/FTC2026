@@ -15,4 +15,23 @@ three methods:
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 public class IntakeSubsystem implements Subsystem {
+    private DcMotor Intake_motor;
+    private DcMotor arm_motor;//might be needed
+    public void activate_intake(){
+        float throttle = gamepad1.left_stick_y;
+        boolean y_button = gamepad1.y;
+        if (y_button){
+            shooter.setPower(1);
+        }
+        else{
+            shooter.setPower(0);
+        }
+    }
 }
+    public void init(){
+        Intake_motor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+
+
+    }
+
+
