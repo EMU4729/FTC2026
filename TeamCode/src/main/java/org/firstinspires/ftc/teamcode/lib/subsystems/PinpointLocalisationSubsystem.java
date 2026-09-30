@@ -20,7 +20,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
-public class PinpointLocalisationSubsystem extends SubsystemBase {
+public class PinpointLocalisationSubsystem implements Subsystem {
     private static final double X_POD_OFFSET_MM = -84.0; // honestly not sure how to do this lol. using "tuned for 3110-0002-0001 Product Insight #1"
     private static final double Y_POD_OFFSET_MM = -168.0; // edit these variables to pass through to pinpoint.setOffset
     private static final Position CAMERA_POSITION = new Position(

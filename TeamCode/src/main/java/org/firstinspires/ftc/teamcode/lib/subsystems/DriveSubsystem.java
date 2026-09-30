@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class DriveSubsystem extends SubsystemBase {
+public class DriveSubsystem implements Subsystem {
     private final DcMotor frontLeft;
     private final DcMotor frontRight;
     private final DcMotor rearLeft;
