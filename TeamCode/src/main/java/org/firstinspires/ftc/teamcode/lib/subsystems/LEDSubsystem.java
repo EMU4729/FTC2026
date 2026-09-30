@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.lib.vendor.AdafruitNeoDriver;
 
-public class LEDSubsystem extends SubsystemBase {
+public class LEDSubsystem implements Subsystem {
     private static final int STRING_LENGTH = 50; // todo: change
     private static final boolean DISABLE = true;
 

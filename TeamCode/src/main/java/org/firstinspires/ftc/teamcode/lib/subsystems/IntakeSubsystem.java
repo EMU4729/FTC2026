@@ -14,5 +14,5 @@ three methods:
 
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem implements Subsystem {
 }
