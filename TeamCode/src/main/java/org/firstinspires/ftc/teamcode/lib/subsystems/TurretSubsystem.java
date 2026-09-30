@@ -8,5 +8,5 @@ Turret: 2 methods:
 
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
-public class TurretSubsystem {
+public class TurretSubsystem extends SubsystemBase {
 }
