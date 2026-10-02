@@ -137,7 +137,7 @@ import java.util.List;
         return pinpoint.getPosition();
     }
     /**
-     * Updates telem info for  Driver Station.
+     * Updates telem info for Driver Station.
      */
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
