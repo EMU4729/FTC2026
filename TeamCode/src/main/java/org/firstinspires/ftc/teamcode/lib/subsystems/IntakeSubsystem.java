@@ -14,17 +14,24 @@ three methods:
 
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+
+import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
+
 public class IntakeSubsystem implements Subsystem {
     private DcMotor Intake_motor;
     private DcMotor arm_motor;//might be needed
     public void activate_intake(){
-        float throttle = gamepad1.left_stick_y;
         boolean y_button = gamepad1.y;
         if (y_button){
-            shooter.setPower(1);
+            Intake_motor.setPower(1);
         }
         else{
-            shooter.setPower(0);
+            Intake_motor.setPower(0);
         }
     }
 }
