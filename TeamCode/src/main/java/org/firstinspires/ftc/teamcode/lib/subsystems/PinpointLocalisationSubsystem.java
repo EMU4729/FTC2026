@@ -72,20 +72,12 @@ public class PinpointLocalisationSubsystem implements Subsystem {
      * @param telemetry The FTC telemetry instance used to stream diagnostic data to the Driver Station.
      */
     public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
-        /**
-        * Binds telemetry from constructor for further use.
-        */
-        this.telemetry = telemetry;
+        this.telemetry = telemetry; // Binds telemetry from constructor for further use.
 
-        /**
-         * Creates, configures and builds AprilTag processor builder.
-         */
         aprilTag = new AprilTagProcessor.Builder()
                 .setCameraPose(CAMERA_POSITION, CAMERA_ORIENTATION)
                 .build();
-        /**
-         * Creates, configures and builds VisionPortal processor
-         */
+
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                 .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
@@ -93,9 +85,6 @@ public class PinpointLocalisationSubsystem implements Subsystem {
                 .addProcessor(aprilTag)
                 .build();
 
-        /**
-         * Creates, configures and builds Pinpoint driver.
-         */
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
@@ -137,9 +126,8 @@ public class PinpointLocalisationSubsystem implements Subsystem {
     public Pose2D getPose() {
         return pinpoint.getPosition();
     }
-    /**
-     * Updates telem info for Driver Station.
-     */
+
+    //Updates telem info for Driver Station.
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
         telemetry.addData("Device Status", pinpoint.getDeviceStatus());
