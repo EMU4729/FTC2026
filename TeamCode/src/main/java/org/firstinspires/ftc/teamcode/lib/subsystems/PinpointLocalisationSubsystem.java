@@ -19,6 +19,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
+public class PinpointLocalisationSubsystem implements Subsystem {
     /**
      * The offset of the X pod from the center of the robot, in millimeters.
      */
