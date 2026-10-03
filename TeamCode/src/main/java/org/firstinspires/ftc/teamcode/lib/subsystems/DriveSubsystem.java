@@ -46,9 +46,7 @@ public class DriveSubsystem implements Subsystem {
         rearLeft = hardwareMap.get(DcMotor.class, "driveRL");
         rearRight = hardwareMap.get(DcMotor.class, "driveRR");
 
-        /**
-         * Configures motor directions to match physical orientation on the robot.
-         */
+// Configures motor directions to match physical orientation on the robot.
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
