@@ -19,26 +19,61 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
-
 public class PinpointLocalisationSubsystem implements Subsystem {
-    private static final double X_POD_OFFSET_MM = -84.0; // honestly not sure how to do this lol. using "tuned for 3110-0002-0001 Product Insight #1"
-    private static final double Y_POD_OFFSET_MM = -168.0; // edit these variables to pass through to pinpoint.setOffset
+    /**
+     * The offset of the X pod from the center of the robot, in millimeters.
+     */
+    private static final double X_POD_OFFSET_MM = -84.0;
+    /**
+     * The offset of the Y pod from the center of the robot, in millimeters.
+     */
+    private static final double Y_POD_OFFSET_MM = -168.0;
+    /**
+     * The 3D position offset of the camera relative to the center of the robot.
+     */
     private static final Position CAMERA_POSITION = new Position(
             DistanceUnit.METER, -0.13, -0.16, 0.045, 0);
+    /**
+     * The 3D orientation offset (yaw, pitch, roll) of the camera relative to the robot's coordinate system.
+     */
     private static final YawPitchRollAngles CAMERA_ORIENTATION = new YawPitchRollAngles(AngleUnit.DEGREES,
             180, -45, 0, 0);
 
+    /**
+     * The FTC telemetry instance used to stream diagnostic data to the Driver Station.
+     */
     private final Telemetry telemetry;
+    /**
+     * The Pinpoint instance used to track the robot's position.
+     */
     private final GoBildaPinpointDriver pinpoint;
+    /**
+     * The AprilTag processor instance used to detect and track AprilTags.
+     */
     private final AprilTagProcessor aprilTag;
+    /**
+     * The VisionPortal managing the camera pipeline and stream settings.
+     */
     private final VisionPortal visionPortal;
+    /**
+     * The IMU instance used to measure the robot's orientation.
+     */
     private final IMU imu;
+    /**
+     * Tracks whether the robot pose has been successfully initialized from an AprilTag detection.
+     * Starts as false and is set to true once a valid AprilTag detection is processed.
+     */
     private boolean initialised = false;
 
+    /**
+     * Creates a new instance of the {@code PinpointLocalisationSubsystem}.
+     *
+     * @param hardwareMap The hardware map of the robot.
+     * @param telemetry The FTC telemetry instance used to stream diagnostic data to the Driver Station.
+     */
     public PinpointLocalisationSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
-        this.telemetry = telemetry;
+        this.telemetry = telemetry; // Binds telemetry from constructor for further use.
 
-        // setup vision
         aprilTag = new AprilTagProcessor.Builder()
                 .setCameraPose(CAMERA_POSITION, CAMERA_ORIENTATION)
                 .build();
@@ -50,7 +85,6 @@ public class PinpointLocalisationSubsystem implements Subsystem {
                 .addProcessor(aprilTag)
                 .build();
 
-        // setup pinpoint
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(
                 GoBildaPinpointDriver.EncoderDirection.FORWARD,
@@ -59,7 +93,12 @@ public class PinpointLocalisationSubsystem implements Subsystem {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD); // 2000 CPR w/ 32mm dia wheel - 2000/100.53 (circum) = 19.894
         pinpoint.setOffsets(X_POD_OFFSET_MM, Y_POD_OFFSET_MM, DistanceUnit.MM);
         pinpoint.resetPosAndIMU();
-
+        /**
+         * Retrieves REV Control/Expansion Hub IMU sensor instance from hardware map.
+         *
+         * @param IMU.class The generic hardware interface for built-in inertia measurement.
+         * @param "imu"     The config name for the IMU.
+         */
         imu = hardwareMap.get(IMU.class, "imu");
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -88,6 +127,7 @@ public class PinpointLocalisationSubsystem implements Subsystem {
         return pinpoint.getPosition();
     }
 
+    //Updates telem info for Driver Station.
     private void updateTelemetry() {
         telemetry.addData("AprilTag Positioning Complete", initialised);
         telemetry.addData("Device Status", pinpoint.getDeviceStatus());
@@ -96,13 +136,16 @@ public class PinpointLocalisationSubsystem implements Subsystem {
         telemetry.addData("Robot Heading (rad)", getPose().getHeading(AngleUnit.RADIANS));
     }
 
+    /**
+     * Subsystem execution cycle called repeatedly inside OpMode loop
+     * Handles updating hardware odometry buffers, pushing telem data, and evaling initial AprilTag(s).
+     */
     @Override
     public void periodic() {
         pinpoint.update();
-        updateTelemetry(); // updating telem AFTER updating pinpoint, old method called before updating
+        updateTelemetry();
 
-        // early return if we don't need to do apriltag stuff anymore
-        if (initialised) return;
+        if (initialised) return; // If robot pose already initalised, skip AprilTag detection and calibration
 
         List<AprilTagDetection> freshDetections = aprilTag.getFreshDetections();
         if (freshDetections == null || freshDetections.isEmpty()) return;
@@ -115,8 +158,7 @@ public class PinpointLocalisationSubsystem implements Subsystem {
                     AngleUnit.RADIANS,
                     detection.robotPose.getOrientation().getYaw(AngleUnit.RADIANS)
             );
-            // Pass newly calibrated pose to Pinpoint computer
-            pinpoint.setPosition(tagPose);
+            pinpoint.setPosition(tagPose); // Updates the robot's pose based on the detected AprilTag's pose
             initialised = true;
             break;
         }
