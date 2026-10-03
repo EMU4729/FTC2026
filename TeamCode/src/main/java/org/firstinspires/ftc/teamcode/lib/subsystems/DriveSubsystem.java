@@ -6,33 +6,52 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+/**
+ * Subsystem responsible for controlling the robot's mecanum drivetrain.
+ */
 public class DriveSubsystem implements Subsystem {
     private final DcMotor frontLeft;
     private final DcMotor frontRight;
     private final DcMotor rearLeft;
     private final DcMotor rearRight;
     private final Telemetry telemetry;
-
+    /**
+     * Creates a new instance of {@code DriveSubsystem} w/ default BRAKE behavior.
+     *
+     * @param hardwareMap The hardware map of the robot.
+     * @param telemetry   The FTC telemetry instance used to stream diagnostic data to the Driver Station.
+     */
     public DriveSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this(hardwareMap, telemetry, DcMotor.ZeroPowerBehavior.BRAKE);
     }
-
+    /**
+     * Creates a new instance of {@code DriveSubsystem} with specified zero power behavior.
+     *
+     * @param hardwareMap        The hardware map of the robot.
+     * @param telemetry          The FTC telemetry instance used to stream diagnostic data to the Driver Station.
+     * @param zeroPowerBehavior  The behavior of the motors when zero power is applied.
+     */
     public DriveSubsystem(HardwareMap hardwareMap, Telemetry telemetry, DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+
+        // Retrieves drive motor instances from hardware map.
         frontLeft = hardwareMap.get(DcMotor.class, "driveFL");
         frontRight = hardwareMap.get(DcMotor.class, "driveFR");
         rearLeft = hardwareMap.get(DcMotor.class, "driveRL");
         rearRight = hardwareMap.get(DcMotor.class, "driveRR");
 
+        // Configures motor directions to match physical orientation on the robot.
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         rearLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         rearRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        // Sets the zero power behavior (BRAKE) for all drive motors.
         frontLeft.setZeroPowerBehavior(zeroPowerBehavior);
         frontRight.setZeroPowerBehavior(zeroPowerBehavior);
         rearLeft.setZeroPowerBehavior(zeroPowerBehavior);
         rearRight.setZeroPowerBehavior(zeroPowerBehavior);
 
+        // Binds telemetry from constructor for further use.
         this.telemetry = telemetry;
     }
 
@@ -88,16 +107,12 @@ public class DriveSubsystem implements Subsystem {
         driveRobotRelative(robotRelativeX, robotRelativeY, r);
     }
 
-    /**
-     * Stops driving. Equivalent to <code>driveRobotRelative(0, 0, 0)</code>.
-     */
+    //Stops driving. Equivalent to driveRobotRelative(0, 0, 0).
     public void stop() {
         driveRobotRelative(0, 0, 0);
     }
 
-    /**
-     * Updates diagnostic telemetry with power and yaw
-     */
+    // Updates diagnostic telemetry with power and yaw
     private void updateTelemetry() {
         telemetry.addData("FL Drive Power", frontLeft.getPower());
         telemetry.addData("FR Drive Power", frontRight.getPower());
