@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.AprilTagPositioner;
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 import org.firstinspires.ftc.teamcode.lib.subsystems.LEDSubsystem;
 
-@TeleOp(name = "Teleop")
-public class TeleopOpMode extends OpMode {
+@Autonomous
+public class AutoOpMode extends OpMode {
     private Follower drive;
     private AprilTagPositioner aprilTagPositioner;
     private LEDSubsystem led;
@@ -30,11 +30,9 @@ public class TeleopOpMode extends OpMode {
 
     @Override
     public void loop() {
+        // TODO: Follow https://pedropathing.com/docs/pathing/guide/setting-up-auto after performing tuning
+
         if (!aprilTagPositioner.isPositioned()) aprilTagPositioner.tryPositioning(drive);
-
-        drive.manual(-gamepad2.left_stick_y, -gamepad2.left_stick_x, gamepad2.right_stick_x);
-        drive.update();
-
         led.periodic();
         telemetry.update();
     }
