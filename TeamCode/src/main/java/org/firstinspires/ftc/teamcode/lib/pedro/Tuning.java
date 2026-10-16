@@ -8,7 +8,7 @@ import com.pedropathing.tuning.autotune.Tuner;
 public class Tuning {
     @Tuner
     public static Procedure mecanumTuner() {
-        return new PinpointTuner();
+        return new MecanumTuner();
     }
 
     @Tuner
