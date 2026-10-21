@@ -13,18 +13,29 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gam
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class TurretSubsystem implements Subsystem {
     private DcMotor shootermotor;
-    private DcMotor turretmotor;
-    private DcMotor indexing;
+    private Servo turretservo;
+    private DcMotor encoder;
+    private int gear_ratio = 8192;
+    static final double MAX_POS =  180.0;     // Maximum rotational position
+    static final double MIN_POS= 0.0;
+
+    double position = (MAX_POS - MIN_POS) / 2; // Start at halfway position
+
+    // TODO: define Servo for turret turning
+    // TODO: define encoder for measuring turret turning (see examples for how to define)
 
     public TurretSubsystem(HardwareMap hardwareMap){
         //Motor setup please remeber get the name of the motor from control hub
         shootermotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        turretmotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        indexing = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        turretmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretservo = hardwareMap.get(Servo.class,"PLACE HOLDER" );
+        encoder = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+        encoder.getCurrentPosition();
+
+        // TODO setup devices
         //This part still deciding on how to get the turret to lock on to the hives
     }
 
@@ -41,28 +52,54 @@ public class TurretSubsystem implements Subsystem {
         //Fill with method so that the robot will be able to adjust the turret to lock onto both hives
     }*/
     public void Shoot() {
+        // make the shooter motor shoot (setPower call)
+        // that's it
+
         boolean x_button = gamepad1.x;
         if (x_button) {
             shootermotor.setPower(1);
-            indexing.setPower(1);
+
         } else {
             shootermotor.setPower(0);
-            indexing.setPower(0);
-        }
-    }
-    public void rotate_turret(){
-        boolean dpad_left = gamepad1.dpad_left;
-        boolean dpad_right = gamepad1.dpad_right;
-        if (dpad_left){
-            turretmotor.setPower(0.5);
-        }
-        if (dpad_right){
-            turretmotor.setPower(-0.5);
+
         }
     }
 
+    // TODO should accept a double representing "how much" / "how fast" to turn
+    public void rotate_turret(int degree){
+        //TODO: Do math of turret to turn to specific angles
 
 
+
+        // TODO should make the turning Servo move
+        // safety check to prevent rotation over limit of the turret
+        int target_degree  = degree;
+        if (target_degree >= MAX_POS ) {
+            target_degree = MAX_POS;
+            // Switch ramp direction
+        }
+
+        if (target_degree <= MIN_POS ) {
+            target_degree = MIN_POS;
+        }
+        // Set motor
+        double cur_position = encoder.getCurrentPosition();
+        double revolution = cur_position/gear_ratio;
+        double rads = revolution * Math.PI();
+        double angle_error = (target_degree - cur_position)+0.5 ;
+        double rads = revolution * Math.PI;
+        if(position<){
+            int power
+        }
+
+        turretservo.setPosition(angle_error *0.01);
+
+    }
+
+    // TODO off method - just stops all movement
+    public Offmode () {
+
+}
     public void loop(){
 
 
