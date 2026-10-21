@@ -13,16 +13,18 @@
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-
-
-import org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class IntakeSubsystem implements Subsystem {
     private DcMotor Intake_motor;
     private DcMotor arm_motor;//might be needed
+
+    public IntakeSubsystem(HardwareMap hardwareMap){
+        Intake_motor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+    }
+
     public void activate_intake(){
         boolean y_button = gamepad1.y;
         if (y_button){
@@ -32,11 +34,7 @@ public class IntakeSubsystem implements Subsystem {
             Intake_motor.setPower(0);
         }
     }
+
 }
-    public void init(){
-        Intake_motor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-
-
-    }
 
 

@@ -10,14 +10,24 @@
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class TurretSubsystem implements Subsystem {
     private DcMotor shootermotor;
     private DcMotor turretmotor;
     private DcMotor indexing;
+
+    public TurretSubsystem(HardwareMap hardwareMap){
+        //Motor setup please remeber get the name of the motor from control hub
+        shootermotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+        turretmotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+        indexing = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
+        turretmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //This part still deciding on how to get the turret to lock on to the hives
+    }
+
 
     //Function that determine the which color hive should be lock on
     /*
@@ -31,14 +41,13 @@ public class TurretSubsystem implements Subsystem {
         //Fill with method so that the robot will be able to adjust the turret to lock onto both hives
     }*/
     public void Shoot() {
-
         boolean x_button = gamepad1.x;
         if (x_button) {
             shootermotor.setPower(1);
-            indexing.setPower(1):
+            indexing.setPower(1);
         } else {
             shootermotor.setPower(0);
-            indexing.setPower(0):
+            indexing.setPower(0);
         }
     }
     public void rotate_turret(){
@@ -53,18 +62,7 @@ public class TurretSubsystem implements Subsystem {
     }
 
 
-    public void init(){
-        //Motor setup please remeber get the name of the motor from control hub
-        shootermotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        turretmotor = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        indexing = hardwareMap.get(DcMotor.class, "PLACE HOLDER");
-        turretmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //This part still deciding on how to get the turret to lock on to the hives
 
-
-
-
-    }
     public void loop(){
 
 
