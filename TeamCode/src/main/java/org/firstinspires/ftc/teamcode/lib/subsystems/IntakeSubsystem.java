@@ -31,6 +31,9 @@ public class IntakeSubsystem implements Subsystem {
         this.telemetry = telemetry;
     }
 
+    /**
+     * Intakes game pieces from the flower. Raises the intake bar, and spins the intake stars.
+     */
     public void intakeFlower() {
         spinMotorleft.setPower(1);
         spinMotorright.setPower(1);
@@ -42,6 +45,9 @@ public class IntakeSubsystem implements Subsystem {
         }
     }
 
+    /**
+     * Intakes game pieces from the ground. Lowers the intake bar, and spins the intake stars.
+     */
     public void intakeGround() {
         spinMotorleft.setPower(1);
         spinMotorright.setPower(1);
@@ -53,6 +59,9 @@ public class IntakeSubsystem implements Subsystem {
         }
     }
 
+    /**
+     * Turns off intake motors/servos associated with the Intake.
+     */
     public void intakeOff() {
         spinMotorleft.setPower(0);
         spinMotorright.setPower(0);
@@ -61,6 +70,10 @@ public class IntakeSubsystem implements Subsystem {
         updownBarleft.setPosition(0.5);
         updownBarright.setPosition(0.5);
     }
+
+    /**
+     * Stops movement of the updownbar servos. Used with the limitSwitches.
+     */
     private void limitSwitchintakeOff() {
         updownBarleft.setPosition(0.5);
         updownBarright.setPosition(0.5);
