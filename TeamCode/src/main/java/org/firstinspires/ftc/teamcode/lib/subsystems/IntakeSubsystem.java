@@ -15,7 +15,8 @@ public class IntakeSubsystem implements Subsystem {
     private final Servo updownBarright;
     private final Servo spinStarleft;
     private final Servo spinStarright;
-    private final DigitalChannel updownBarlimitSwitch;
+    private final DigitalChannel updownBarlimitSwitchtop;
+    private final DigitalChannel updownBarlimitSwitchbottom;
     private final Telemetry telemetry;
 
     public IntakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -25,7 +26,8 @@ public class IntakeSubsystem implements Subsystem {
         updownBarright = hardwareMap.get(Servo.class, "IntakeupdownBarright");
         spinStarleft = hardwareMap.get(Servo.class, "IntakespinStarleft");
         spinStarright = hardwareMap.get(Servo.class, "IntakespinStarright");
-        updownBarlimitSwitch = hardwareMap.get(DigitalChannel.class, "IntakeupdownBarlimitSwitch");
+        updownBarlimitSwitchtop = hardwareMap.get(DigitalChannel.class, "IntakeupdownBarlimitSwitch");
+        updownBarlimitSwitchbottom = hardwareMap.get(DigitalChannel.class, "IntakeupdownBarlimitSwitch");
         this.telemetry = telemetry;
     }
 
@@ -34,8 +36,10 @@ public class IntakeSubsystem implements Subsystem {
         spinMotorright.setPower(1);
         spinStarleft.setPosition(1);
         spinStarright.setPosition(1);
-        updownBarleft.setPosition(0);
-        updownBarright.setPosition(0);
+        if (!updownBarlimitSwitchtop.getState()) {
+            updownBarleft.setPosition(0);
+            updownBarright.setPosition(0);
+        }
     }
 
     public void intakeGround() {
@@ -43,8 +47,10 @@ public class IntakeSubsystem implements Subsystem {
         spinMotorright.setPower(1);
         spinStarleft.setPosition(0);
         spinStarright.setPosition(0);
-        updownBarleft.setPosition(1);
-        updownBarright.setPosition(1);
+        if (!updownBarlimitSwitchbottom.getState()) {
+            updownBarleft.setPosition(1);
+            updownBarright.setPosition(1);
+        }
     }
 
     public void intakeOff() {
@@ -54,5 +60,16 @@ public class IntakeSubsystem implements Subsystem {
         spinStarright.setPosition(0.5);
         updownBarleft.setPosition(0.5);
         updownBarright.setPosition(0.5);
+    }
+    private void limitSwitchintakeOff() {
+        updownBarleft.setPosition(0.5);
+        updownBarright.setPosition(0.5);
+    }
+
+    @Override
+    public void periodic() {
+        if (updownBarlimitSwitchtop.getState() || updownBarlimitSwitchbottom.getState()) {
+            limitSwitchintakeOff();
+        }
     }
 }

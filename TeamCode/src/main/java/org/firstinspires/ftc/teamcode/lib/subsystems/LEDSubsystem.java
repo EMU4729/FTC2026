@@ -28,6 +28,7 @@ public class LEDSubsystem implements Subsystem {
         leds.setNumberOfPixels(STRING_LENGTH);
     }
 
+
     /**
      * Sets the mode of the LEDs. If SOLID is selected, use the {@link LEDSubsystem#setSolidColor} method to set the desired color.
      *
