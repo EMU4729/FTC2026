@@ -5,13 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.lib.Utils;
 import org.firstinspires.ftc.teamcode.lib.pedro.AprilTagPositioner;
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 import org.firstinspires.ftc.teamcode.lib.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.LEDSubsystem;
-
-import kotlin.ArrayIntrinsicsKt;
 
 @TeleOp(name = "Teleop")
 public class TeleopOpMode extends OpMode {
@@ -42,7 +39,7 @@ public class TeleopOpMode extends OpMode {
         drive.update();
 
         if (gamepad1.b) {
-            intake.intakeOff();
+            intake.off();
         }
 
         led.periodic();
