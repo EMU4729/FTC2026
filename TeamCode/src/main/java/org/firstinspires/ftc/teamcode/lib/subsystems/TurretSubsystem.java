@@ -139,6 +139,8 @@ public class TurretSubsystem implements Subsystem {
         // current value -> x coordinate of the apriltag's center
         // target -> halfway in the center of the image
         // -> error -> pid calculations -> yippee
+
+        // TODO implement this
     }
     private void telemetryAprilTag() {
 
@@ -153,6 +155,8 @@ public class TurretSubsystem implements Subsystem {
                 double bearing = clusterDet.ftcPose.bearing;
             }
         }
+
+        // TODO finish this
     }
     @Override
     public void periodic() {
