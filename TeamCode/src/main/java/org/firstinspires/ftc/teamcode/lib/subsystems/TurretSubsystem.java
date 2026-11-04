@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
@@ -65,6 +66,8 @@ public class TurretSubsystem implements Subsystem {
         // Create the vision portal the easy way.
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "Turret camera"), aprilTag);
+
+
     }
 
     private int getEncoderPosition() {
@@ -142,21 +145,14 @@ public class TurretSubsystem implements Subsystem {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         telemetry.addData("# AprilTags Detected", currentDetections.size());
 
-        double xTotal = 0;
-
-        // Step through the list of detections and display info for each one.
         for (AprilTagDetection detection : currentDetections) {
+            if (detection instanceof AprilTagClusterDetection) {
+                AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
 
-            if (detection.metadata != null) {
-                telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", detection.center.x));
-                xTotal += detection.center.x;
+                double x = clusterDet.ftcPose.x;
+                double bearing = clusterDet.ftcPose.bearing;
             }
-
-    }
-        double x = xTotal/currentDetections.size(); // <-- current value
-        double target = 1235;
-
-
+        }
     }
     @Override
     public void periodic() {
