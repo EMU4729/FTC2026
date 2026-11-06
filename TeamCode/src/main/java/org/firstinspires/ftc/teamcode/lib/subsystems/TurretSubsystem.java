@@ -1,15 +1,4 @@
-/**
- * hi
- * We want to have multiple colour sensors to detect pollen/nectar (and whether we have accidentally picked up opposition piece [and if so, eject it]).
- * We also want to have a turret that can aim and shoot the pollen/nectar into the correct goal.
- * Turret: 2 methods:
- *     set aim direction
- *     set shooting (true/false) - should intelligently handle different game pieces / colours≥
-*/
-
 package org.firstinspires.ftc.teamcode.lib.subsystems;
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -18,7 +7,6 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
@@ -28,73 +16,112 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.List;
 
 public class TurretSubsystem implements Subsystem {
-    private static final int CALIBRATION_CLOCKWISE_INITIAL_VALUE = 0;
-    private static final int CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE = 0;
+    private static final int CALIBRATION_CLOCKWISE_INITIAL_VALUE = 0; // TODO tune this
+    private static final int CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE = 0; // TODO tune this
+    private static final double AIM_LOWER_LIMIT = -Math.PI / 2; // TODO tune this
+    private static final double AIM_UPPER_LIMIT = Math.PI / 2; // TODO tune this
     private static final int ENCODER_GEAR_RATIO = 8192;
 
     private final NormalizedColorSensor colorSensorLeft;
     private final NormalizedColorSensor colorSensorRight;
-    private final DcMotor ShootyMotor;
-    private final Servo RotatorServo;
+    private final DcMotor shootMotor;
+    private final Servo aimServo;
     private final DcMotor aimEncoder;
-    private final DigitalChannel halleffectSensor;
+    private final DigitalChannel hallEffectSensor;
     private AprilTagProcessor aprilTag;
 
     private VisionPortal visionPortal;
     private final Telemetry telemetry;
+    private final boolean isRedAlliance;
     private int encoderZero = 0;
     private int previousEncoderPosition = 0;
     private boolean previousHallEffectState = false;
     private boolean autoEnabled = false;
     private double manualAimAngle = 0;
 
-    public TurretSubsystem(HardwareMap hardwareMap, Telemetry telemetry){
-        colorSensorLeft = hardwareMap.get(NormalizedColorSensor.class, "turretcolorSensorLeft");
-        colorSensorRight = hardwareMap.get(NormalizedColorSensor.class, "turretcolorSensorRight");
-        ShootyMotor = hardwareMap.get(DcMotor.class, "turretShootyMotor");
-        RotatorServo = hardwareMap.get(Servo.class, "turretRotatorServo");
-        aimEncoder = hardwareMap.get(DcMotor.class, "turretThoroghboreEncoder_notMotor");
-        halleffectSensor = hardwareMap.get(DigitalChannel.class, "turrethalleffectSensor");
-        initAprilTag();
-        this.telemetry = telemetry;
-    }
-
-    private void initAprilTag() {
-        // Create the AprilTag processor the easy way.
+    public TurretSubsystem(HardwareMap hardwareMap, Telemetry telemetry, boolean isRedAlliance) {
+        colorSensorLeft = hardwareMap.get(NormalizedColorSensor.class, "turretColorSensorLeft");
+        colorSensorRight = hardwareMap.get(NormalizedColorSensor.class, "turretColorSensorRight");
+        shootMotor = hardwareMap.get(DcMotor.class, "turretShootMotor");
+        aimServo = hardwareMap.get(Servo.class, "turretAimServo");
+        aimEncoder = hardwareMap.get(DcMotor.class, "turretAimEncoder");
+        hallEffectSensor = hardwareMap.get(DigitalChannel.class, "turretHallEffectSensor");
         aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-
-        // Create the vision portal the easy way.
         visionPortal = VisionPortal.easyCreateWithDefaults(
-                hardwareMap.get(WebcamName.class, "Turret camera"), aprilTag);
+                hardwareMap.get(WebcamName.class, "turretCamera"), aprilTag);
+        this.telemetry = telemetry;
+        this.isRedAlliance = isRedAlliance;
+    }
 
+    /**
+     * Sets the power of the aiming servo, taking into account software-defined rotation limits.
+     *
+     * @param power The desired power, in the range [-1, 1].
+     */
+    private void setAimServoPower(double power) {
+        double aimAngle = getAimAngle();
+        if ((power < 0 && aimAngle < AIM_LOWER_LIMIT) || (power > 0 && aimAngle > AIM_UPPER_LIMIT)) {
+            aimServo.setPosition(0.5);
+            return;
+        }
+
+        // normalise [-1, 1] power to [0, 1] accepted by setPosition
+        double out = Math.clamp(0.5 + power / 2, -1, 1);
+        aimServo.setPosition(out);
 
     }
 
+    /**
+     * @return The current aim encoder position (in ticks) relative to the calibrated encoderZero.
+     */
     private int getEncoderPosition() {
         return aimEncoder.getCurrentPosition() - encoderZero;
     }
 
+    /**
+     * @return The current aiming angle (in radians) relative to the calibrated encoderZero.
+     */
     private double getAimAngle() {
         double revolution = getEncoderPosition() / (double) ENCODER_GEAR_RATIO;
         return revolution * 2 * Math.PI;
     }
 
+    /**
+     * Sets whether the subsystem should use auto aim or manual.
+     *
+     * @param enabled true for auto aim, false for manual.
+     */
     public void setAuto(boolean enabled) {
         autoEnabled = enabled;
     }
 
+    /**
+     * Sets the desired angle of the turret in manual mode. Note: Has no effect if the turret is using auto aim, see {@link setAuto}.
+     *
+     * @param angle The angle, in radians.
+     */
     public void setManualAngle(double angle) {
         manualAimAngle = angle;
     }
 
+    /**
+     * Turns on the shooting motor.
+     */
     public void shoot() {
-        ShootyMotor.setPower(1);
+        shootMotor.setPower(1);
     }
 
+    /**
+     * Turns off the shooting motor.
+     */
     public void off() {
-        ShootyMotor.setPower(0);
+        shootMotor.setPower(0);
     }
 
+    /**
+     * Calibrates the zero position of the turret aim encoder using the hall effect sensor.
+     * Should be called repeatedly while calibration is active, probably during `init_loop`.
+     */
     public void calibrate() {
         // get the rotation direction of the turret
         int currentEncoderPosition = aimEncoder.getCurrentPosition();
@@ -102,7 +129,7 @@ public class TurretSubsystem implements Subsystem {
         boolean rotatingClockwise = currentEncoderPosition > previousEncoderPosition;
 
         // check if the hall effect sensor was just triggered (rising edge)
-        boolean currentHallEffectState = halleffectSensor.getState();
+        boolean currentHallEffectState = hallEffectSensor.getState();
         boolean hallEffectJustTriggered = !previousHallEffectState && currentHallEffectState;
 
         if (hallEffectJustTriggered) {
@@ -117,57 +144,54 @@ public class TurretSubsystem implements Subsystem {
         previousHallEffectState = currentHallEffectState;
     }
 
+    /**
+     * Periodic code for manual aiming.
+     */
     private void manualAim() {
         // pid on the aimAngle
-
         double currentAngle = getAimAngle();
         double error = manualAimAngle - currentAngle;
-        double output = 0.5 + 0.0001 * error;
-        RotatorServo.setPosition(output);
+        setAimServoPower(error);
     }
 
+    /**
+     * Periodic code for auto aiming.
+     */
     private void autoAim() {
+        List<AprilTagDetection> detections = aprilTag.getDetections();
 
-        // if we don't see an april, we can't do anything
-        //  -> defer to manual control
+        AprilTagDetection targetDetection = null;
+        for (AprilTagDetection detection : detections) {
+            if (!(detection instanceof AprilTagClusterDetection)) continue;
+            AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
 
-        // otherwise, we do see an apriltag
-        // goal: center the apriltag in the camera's vision
+            // same approach as in https://ftc-docs.firstinspires.org/en/latest/tech_tips/tech-tips/tech-tip-apriltag-clusters/tech-tip-apriltag-clusters.html#determining-if-a-cluster-should-be-targeted
+            boolean tagIsRedAlliance = cluster.metadata.name.startsWith("R");
+            boolean isFacingUp = Math.abs(cluster.ftcPose.roll) < 90;
+            if (tagIsRedAlliance != isRedAlliance || !isFacingUp) continue;
 
-        // -> pid on the apriltag position in the camera
-
-        // current value -> x coordinate of the apriltag's center
-        // target -> halfway in the center of the image
-        // -> error -> pid calculations -> yippee
-
-        // TODO implement this
-    }
-    private void telemetryAprilTag() {
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection instanceof AprilTagClusterDetection) {
-                AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
-
-                double x = clusterDet.ftcPose.x;
-                double bearing = clusterDet.ftcPose.bearing;
-            }
+            targetDetection = detection;
+            break;
         }
 
-        // TODO finish this
+        // if we don't see an apriltag, we can't do anything
+        // TODO: defer to manual control in this case
+        if (targetDetection == null) return;
+
+        // otherwise, PID on the target X and heading (we want both to be 0)
+        // TODO: the below probably isn't a good way to implement this.
+        double out = targetDetection.ftcPose.x + targetDetection.ftcPose.bearing;
+        setAimServoPower(out);
     }
+
     @Override
     public void periodic() {
-        // if !autoEnabled -> use the manual angle PID
         if (autoEnabled) {
             autoAim();
         } else {
             manualAim();
         }
     }
-
 }
 
 
