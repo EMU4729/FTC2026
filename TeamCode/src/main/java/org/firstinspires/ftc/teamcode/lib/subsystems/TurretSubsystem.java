@@ -79,11 +79,19 @@ public class TurretSubsystem implements Subsystem {
     }
 
     /**
+     * Converts between aim encoder ticks and radians.
+     * @param ticks Number of ticks
+     * @return Number of radians for given ticks
+     */
+    private double ticksToRadians(int ticks) {
+        return (ticks / (double) ENCODER_GEAR_RATIO) * 2 * Math.PI;
+    }
+
+    /**
      * @return The current aiming angle (in radians) relative to the calibrated encoderZero.
      */
     private double getAimAngle() {
-        double revolution = getEncoderPosition() / (double) ENCODER_GEAR_RATIO;
-        return revolution * 2 * Math.PI;
+        return ticksToRadians(getEncoderPosition());
     }
 
     /**
@@ -184,8 +192,12 @@ public class TurretSubsystem implements Subsystem {
         if (autoEnabled) {
             autoAim();
         }
+
+        telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
+        telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
+        telemetry.addData("Turret Aim Position (ticks, zeroed)", getEncoderPosition());
+        telemetry.addData("Turret Aim Zero (ticks)", encoderZero);
+        telemetry.addData("Turret Aim Zero (rad)", ticksToRadians(encoderZero));
+        telemetry.addData("Turret Aim Position (rad, zeroed)", getAimAngle());
     }
 }
-//TODO ???
-
-
