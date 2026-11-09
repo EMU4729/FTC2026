@@ -162,6 +162,7 @@ public class TurretSubsystem implements Subsystem {
      */
     private void autoAim() {
         List<AprilTagDetection> detections = aprilTag.getDetections();
+        // TODO: add apriltag telemetry (important!!)
 
         AprilTagDetection targetDetection = null;
         for (AprilTagDetection detection : detections) {
