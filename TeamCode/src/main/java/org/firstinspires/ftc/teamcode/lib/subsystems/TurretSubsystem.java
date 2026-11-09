@@ -65,7 +65,7 @@ public class TurretSubsystem implements Subsystem {
             return;
         }
 
-        // normalise [-1, 1] power to [0, 1] accepted by setPosition
+        // normalize [-1, 1] power to [0, 1] accepted by setPosition
         double out = Math.clamp(0.5 + power / 2, -1, 1);
         aimServo.setPosition(out);
 
@@ -96,12 +96,14 @@ public class TurretSubsystem implements Subsystem {
     }
 
     /**
-     * Sets the desired angle of the turret in manual mode. Note: Has no effect if the turret is using auto aim, see {@link setAuto}.
+     * Sets the power of the turret aim servo in manual mode. Note: Has no effect if the turret is using auto aim, see {@link setAuto}.
      *
-     * @param angle The angle, in radians.
+     * @param power The power, in the range [-1, 1].
      */
-    public void setManualAngle(double angle) {
-        manualAimAngle = angle;
+    public void setManualPower(double power) {
+        if (!autoEnabled) {
+            setAimServoPower(power);
+        }
     }
 
     /**
@@ -109,6 +111,9 @@ public class TurretSubsystem implements Subsystem {
      */
     public void shoot() {
         shootMotor.setPower(1);
+    }
+    public void dump() {
+        shootMotor.setPower(0.25);
     }
 
     /**
@@ -145,16 +150,6 @@ public class TurretSubsystem implements Subsystem {
     }
 
     /**
-     * Periodic code for manual aiming.
-     */
-    private void manualAim() {
-        // pid on the aimAngle
-        double currentAngle = getAimAngle();
-        double error = manualAimAngle - currentAngle;
-        setAimServoPower(error);
-    }
-
-    /**
      * Periodic code for auto aiming.
      */
     private void autoAim() {
@@ -188,11 +183,9 @@ public class TurretSubsystem implements Subsystem {
     public void periodic() {
         if (autoEnabled) {
             autoAim();
-        } else {
-            manualAim();
         }
     }
 }
-
+//TODO ???
 
 
