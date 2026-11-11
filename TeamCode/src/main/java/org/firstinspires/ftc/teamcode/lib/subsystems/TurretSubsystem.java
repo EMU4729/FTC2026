@@ -163,9 +163,17 @@ public class TurretSubsystem implements Subsystem {
     private void autoAim() {
         List<AprilTagDetection> detections = aprilTag.getDetections();
         // TODO: add apriltag telemetry (important!!)
-
         AprilTagDetection targetDetection = null;
         for (AprilTagDetection detection : detections) {
+
+            AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
+            telemetry.addLine(String.format("\n==== Tag Cluster (%s)", clusterDet.metadata.name));
+            telemetry.addLine(String.format("Percent tags found: %d", clusterDet.percentClusterFound));
+            telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+            telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+            telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+            telemetry.addLine();
+
             if (!(detection instanceof AprilTagClusterDetection)) continue;
             AprilTagClusterDetection cluster = (AprilTagClusterDetection) detection;
 
@@ -178,12 +186,14 @@ public class TurretSubsystem implements Subsystem {
             break;
         }
 
+
         // if we don't see an apriltag, we can't do anything
         // TODO: defer to manual control in this case
         if (targetDetection == null) return;
 
         // otherwise, PID on the target X and heading (we want both to be 0)
-        // TODO: the below probably isn't a good way to implement this.
+        // TODO: the below probably isn't a good way to implement thi
+
         double out = targetDetection.ftcPose.x + targetDetection.ftcPose.bearing;
         setAimServoPower(out);
     }
