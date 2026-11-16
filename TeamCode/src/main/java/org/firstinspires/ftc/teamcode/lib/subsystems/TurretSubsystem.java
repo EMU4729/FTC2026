@@ -34,6 +34,7 @@ public class TurretSubsystem implements Subsystem {
     private final Telemetry telemetry;
     private final boolean isRedAlliance;
     private int encoderZero = 0;
+    private boolean isCalibrated = false;
     private int previousEncoderPosition = 0;
     private boolean previousHallEffectState = false;
     private boolean autoEnabled = false;
@@ -80,6 +81,7 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * Converts between aim encoder ticks and radians.
+     *
      * @param ticks Number of ticks
      * @return Number of radians for given ticks
      */
@@ -120,6 +122,7 @@ public class TurretSubsystem implements Subsystem {
     public void shoot() {
         shootMotor.setPower(1);
     }
+
     public void dump() {
         shootMotor.setPower(0.25);
     }
@@ -134,11 +137,13 @@ public class TurretSubsystem implements Subsystem {
     /**
      * Calibrates the zero position of the turret aim encoder using the hall effect sensor.
      * Should be called repeatedly while calibration is active, probably during `init_loop`.
+     *
+     * @return whether the turret was calibrated or not.
      */
-    public void calibrate() {
+    public boolean calibrate() {
         // get the rotation direction of the turret
         int currentEncoderPosition = aimEncoder.getCurrentPosition();
-        if (currentEncoderPosition == previousEncoderPosition) return;
+        if (currentEncoderPosition == previousEncoderPosition) return false;
         boolean rotatingClockwise = currentEncoderPosition > previousEncoderPosition;
 
         // check if the hall effect sensor was just triggered (rising edge)
@@ -151,10 +156,19 @@ public class TurretSubsystem implements Subsystem {
             } else {
                 encoderZero = currentEncoderPosition + CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE;
             }
+            isCalibrated = true;
         }
 
         previousEncoderPosition = currentEncoderPosition;
         previousHallEffectState = currentHallEffectState;
+        return hallEffectJustTriggered;
+    }
+
+    /**
+     * @return Whether the turret has been calibrated or not.
+     */
+    public boolean isCalibrated() {
+        return isCalibrated;
     }
 
     /**
@@ -195,6 +209,7 @@ public class TurretSubsystem implements Subsystem {
         }
 
         telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
+        telemetry.addData("Turret Calibrated?", isCalibrated);
         telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
         telemetry.addData("Turret Aim Position (ticks, zeroed)", getEncoderPosition());
         telemetry.addData("Turret Aim Zero (ticks)", encoderZero);
