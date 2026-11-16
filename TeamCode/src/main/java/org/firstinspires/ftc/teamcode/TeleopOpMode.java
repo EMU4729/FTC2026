@@ -2,17 +2,14 @@ package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.lib.pedro.AprilTagPositioner;
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 import org.firstinspires.ftc.teamcode.lib.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.TurretSubsystem;
 
-@TeleOp(name = "Teleop")
-public class TeleopOpMode extends OpMode {
+public abstract class TeleopOpMode extends OpMode {
     private Follower drive;
     private LEDSubsystem led;
     private IntakeSubsystem intake;
@@ -21,12 +18,14 @@ public class TeleopOpMode extends OpMode {
 
     private final ElapsedTime timer = new ElapsedTime();
 
+    public abstract boolean isRedAlliance();
+
     @Override
     public void init() {
         drive = Constants.create(hardwareMap);
         led = new LEDSubsystem(hardwareMap, telemetry);
         intake = new IntakeSubsystem(hardwareMap, telemetry);
-        turret = new TurretSubsystem(hardwareMap, telemetry, false); // TODO: pls fix
+        turret = new TurretSubsystem(hardwareMap, telemetry, isRedAlliance());
     }
 
     @Override
