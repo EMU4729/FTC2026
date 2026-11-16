@@ -14,7 +14,7 @@ public abstract class TeleopOpMode extends OpMode {
     private LEDSubsystem led;
     private IntakeSubsystem intake;
     private TurretSubsystem turret;
-    private boolean turretIsAuto = true;
+    private boolean turretIsAuto = false;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -54,7 +54,7 @@ public abstract class TeleopOpMode extends OpMode {
             turret.off();
         }
 
-        if (gamepad1.xWasPressed()) {
+        if (gamepad1.xWasPressed() && turret.isCalibrated()) {
             turretIsAuto = !turretIsAuto;
             turret.setAuto(turretIsAuto);
         }
@@ -65,6 +65,10 @@ public abstract class TeleopOpMode extends OpMode {
             turret.setManualPower(0.5);
         } else {
             turret.setManualPower(0);
+        }
+
+        if (!turret.isCalibrated()) {
+            turret.calibrate();
         }
 
         led.periodic();
