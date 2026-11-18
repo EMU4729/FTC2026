@@ -47,7 +47,7 @@ public abstract class TeleopOpMode extends OpMode {
         }
 
         if (gamepad1.right_trigger_pressed) {
-            turret.shoot();
+            turret.shoot(5);
         } else if (gamepad1.right_bumper) {
             turret.dump();
         } else {
