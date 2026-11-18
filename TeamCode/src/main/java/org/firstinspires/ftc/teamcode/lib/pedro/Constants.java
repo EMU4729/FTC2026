@@ -7,12 +7,14 @@ import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class Constants {
-    // TODO: config these and mark as `final`
-    public static MecanumConfig mecanumConfig = new MecanumConfig(c -> {
+    public static final MecanumConfig mecanumConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("driveFL");
         c.frontRightName.set("driveFR");
         c.backLeftName.set("driveRL");
@@ -23,7 +25,17 @@ public class Constants {
         c.backRightDirection.set(DcMotorSimple.Direction.FORWARD);
     });
 
-    public static PinpointConfig pinpointConfig;
+    public static final PinpointConfig pinpointConfig = new PinpointConfig(c -> {
+        c.name.set("pinpoint");
+        c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        c.xPodOffset.set(5.5436063751461);
+        c.yPodOffset.set(-0.6631051461527666);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.globalDistanceUnit.set(DistanceUnit.INCH);
+        c.offsetUnits.set(DistanceUnit.INCH);
+    });
+
     public static ForesightConfig foresightConfig;
 
     public static Follower create(HardwareMap h) {
