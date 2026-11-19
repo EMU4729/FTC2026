@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,6 +28,10 @@ public class IntakeSubsystem implements Subsystem {
         starServoRight = hardwareMap.get(Servo.class, "intakeStarServoRight");
         deployLimitSwitchTop = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchTop");
         deployLimitSwitchBottom = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchBottom");
+
+        spinMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        spinMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
         this.telemetry = telemetry;
     }
 
