@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.lib.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -15,8 +14,8 @@ public class IntakeSubsystem implements Subsystem {
     private final Servo deployServoRight;
     private final Servo starServoLeft;
     private final Servo starServoRight;
-    private final DigitalChannel deployLimitSwitchTop;
-    private final DigitalChannel deployLimitSwitchBottom;
+    //    private final DigitalChannel deployLimitSwitchTop;
+//    private final DigitalChannel deployLimitSwitchBottom;
     private final Telemetry telemetry;
 
     public IntakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -26,13 +25,23 @@ public class IntakeSubsystem implements Subsystem {
         deployServoRight = hardwareMap.get(Servo.class, "intakeDeployServoRight");
         starServoLeft = hardwareMap.get(Servo.class, "intakeStarServoLeft");
         starServoRight = hardwareMap.get(Servo.class, "intakeStarServoRight");
-        deployLimitSwitchTop = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchTop");
-        deployLimitSwitchBottom = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchBottom");
+//        deployLimitSwitchTop = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchTop");
+//        deployLimitSwitchBottom = hardwareMap.get(DigitalChannel.class, "intakeDeployLimitSwitchBottom");
 
         spinMotorLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         spinMotorRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.telemetry = telemetry;
+    }
+
+    private void raise() {
+        deployServoLeft.setPosition(0.5);
+        deployServoRight.setPosition(0.5);
+    }
+
+    private void lower() {
+        deployServoLeft.setPosition(0.5);
+        deployServoRight.setPosition(0.5);
     }
 
     /**
@@ -43,10 +52,7 @@ public class IntakeSubsystem implements Subsystem {
         spinMotorRight.setPower(1);
         starServoLeft.setPosition(1);
         starServoRight.setPosition(1);
-        if (!limitSwitchTriggered()) {
-            deployServoLeft.setPosition(0);
-            deployServoRight.setPosition(0);
-        }
+        raise();
     }
 
     /**
@@ -57,10 +63,7 @@ public class IntakeSubsystem implements Subsystem {
         spinMotorRight.setPower(1);
         starServoLeft.setPosition(0);
         starServoRight.setPosition(0);
-        if (!limitSwitchTriggered()) {
-            deployServoLeft.setPosition(1);
-            deployServoRight.setPosition(1);
-        }
+        lower();
     }
 
     /**
@@ -71,25 +74,24 @@ public class IntakeSubsystem implements Subsystem {
         spinMotorRight.setPower(0);
         starServoLeft.setPosition(0.5);
         starServoRight.setPosition(0.5);
-        deployServoLeft.setPosition(0.5);
-        deployServoRight.setPosition(0.5);
+        lower();
     }
 
-    /**
-     * @return true if either deployment limit switch is triggered
-     */
-    private boolean limitSwitchTriggered() {
-        return deployLimitSwitchTop.getState() || deployLimitSwitchBottom.getState();
-    }
+//    /**
+//     * @return true if either deployment limit switch is triggered
+//     */
+//    private boolean limitSwitchTriggered() {
+//        return deployLimitSwitchTop.getState() || deployLimitSwitchBottom.getState();
+//    }
 
     @Override
     public void periodic() {
-        if (limitSwitchTriggered()) {
-            deployServoLeft.setPosition(0.5);
-            deployServoRight.setPosition(0.5);
-        }
+//        if (limitSwitchTriggered()) {
+//            deployServoLeft.setPosition(0.5);
+//            deployServoRight.setPosition(0.5);
+//        }
 
-        telemetry.addData("Intake Deploy Limit Switch Top State", deployLimitSwitchTop.getState());
-        telemetry.addData("Intake Deploy Limit Switch Bottom State", deployLimitSwitchBottom.getState());
+//        telemetry.addData("Intake Deploy Limit Switch Top State", deployLimitSwitchTop.getState());
+//        telemetry.addData("Intake Deploy Limit Switch Bottom State", deployLimitSwitchBottom.getState());
     }
 }
