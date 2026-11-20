@@ -54,7 +54,7 @@ public abstract class TeleopOpMode extends OpMode {
             turret.off();
         }
 
-        if (gamepad1.xWasPressed() && turret.isCalibrated()) {
+        if (gamepad1.xWasPressed() && Globals.turretIsCalibrated) {
             turretIsAuto = !turretIsAuto;
             turret.setAuto(turretIsAuto);
         }
@@ -67,7 +67,7 @@ public abstract class TeleopOpMode extends OpMode {
             turret.setManualPower(0);
         }
 
-        if (!turret.isCalibrated()) {
+        if (!Globals.turretIsCalibrated) {
             turret.calibrate();
         }
 

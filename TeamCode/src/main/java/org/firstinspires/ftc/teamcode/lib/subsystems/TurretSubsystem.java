@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -39,8 +40,6 @@ public class TurretSubsystem implements Subsystem {
     private VisionPortal visionPortal;
     private final Telemetry telemetry;
     private final boolean isRedAlliance;
-    private int encoderZero = 0;
-    private boolean isCalibrated = false;
     private int previousEncoderPosition = 0;
     private boolean previousHallEffectState = false;
     private boolean autoEnabled = false;
@@ -90,7 +89,7 @@ public class TurretSubsystem implements Subsystem {
      * @return The current aim encoder position (in ticks) relative to the calibrated encoderZero.
      */
     private int getEncoderPosition() {
-        return aimEncoder.getCurrentPosition() - encoderZero;
+        return aimEncoder.getCurrentPosition() - Globals.turretEncoderZero;
     }
 
     /**
@@ -171,23 +170,16 @@ public class TurretSubsystem implements Subsystem {
 
         if (hallEffectJustTriggered) {
             if (rotatingClockwise) {
-                encoderZero = currentEncoderPosition + CALIBRATION_CLOCKWISE_INITIAL_VALUE;
+                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_CLOCKWISE_INITIAL_VALUE;
             } else {
-                encoderZero = currentEncoderPosition + CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE;
+                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE;
             }
-            isCalibrated = true;
+            Globals.turretIsCalibrated = true;
         }
 
         previousEncoderPosition = currentEncoderPosition;
         previousHallEffectState = currentHallEffectState;
         return hallEffectJustTriggered;
-    }
-
-    /**
-     * @return Whether the turret has been calibrated or not.
-     */
-    public boolean isCalibrated() {
-        return isCalibrated;
     }
 
     /**
@@ -229,11 +221,11 @@ public class TurretSubsystem implements Subsystem {
         }
 
         telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
-        telemetry.addData("Turret Calibrated?", isCalibrated);
+        telemetry.addData("Turret Calibrated?", Globals.turretIsCalibrated);
         telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
         telemetry.addData("Turret Aim Position (ticks, zeroed)", getEncoderPosition());
-        telemetry.addData("Turret Aim Zero (ticks)", encoderZero);
-        telemetry.addData("Turret Aim Zero (rad)", ticksToRadians(encoderZero));
+        telemetry.addData("Turret Aim Zero (ticks)", Globals.turretEncoderZero);
+        telemetry.addData("Turret Aim Zero (rad)", ticksToRadians(Globals.turretEncoderZero));
         telemetry.addData("Turret Aim Position (rad, zeroed)", getAimAngle());
     }
 }
