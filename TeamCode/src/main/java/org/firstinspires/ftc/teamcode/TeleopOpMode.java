@@ -6,12 +6,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 import org.firstinspires.ftc.teamcode.lib.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.lib.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.TurretSubsystem;
 
 public abstract class TeleopOpMode extends OpMode {
     private Follower drive;
-    private LEDSubsystem led;
+    //    private LEDSubsystem led;
     private IntakeSubsystem intake;
     private TurretSubsystem turret;
     private boolean turretIsAuto = false;
@@ -23,7 +22,7 @@ public abstract class TeleopOpMode extends OpMode {
     @Override
     public void init() {
         drive = Constants.create(hardwareMap);
-        led = new LEDSubsystem(hardwareMap, telemetry);
+//        led = new LEDSubsystem(hardwareMap, telemetry);
         intake = new IntakeSubsystem(hardwareMap, telemetry);
         turret = new TurretSubsystem(hardwareMap, telemetry, isRedAlliance());
     }
@@ -71,7 +70,7 @@ public abstract class TeleopOpMode extends OpMode {
             turret.calibrate();
         }
 
-        led.periodic();
+//        led.periodic();
         intake.periodic();
         turret.periodic();
         telemetry.update();
