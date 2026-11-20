@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 
-@Autonomous(name = "Emergency Move Left Only")
+@Autonomous(name = "Move Left Only")
 public class EmergencyLeftAutoOpMode extends OpMode {
     private Follower drive;
 
