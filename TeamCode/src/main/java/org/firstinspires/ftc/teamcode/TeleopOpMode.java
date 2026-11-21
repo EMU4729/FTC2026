@@ -92,6 +92,7 @@ public abstract class TeleopOpMode extends OpMode {
 //        led.periodic();
         intake.periodic();
         turret.periodic();
+        telemetry.addData("Field Relative Drive?", isFieldCentric);
         telemetry.update();
     }
 }
