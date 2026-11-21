@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.lib.subsystems;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Globals;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
@@ -32,7 +30,7 @@ public class TurretSubsystem implements Subsystem {
     private final DcMotorEx shootMotorPrimary;
     private final DcMotorEx shootMotorSecondary;
     private final Servo aimServo;
-    private final DcMotor aimEncoder;
+    //    private final DcMotor aimEncoder;
     //    private final DigitalChannel hallEffectSensor;
     private AprilTagProcessor aprilTag;
 
@@ -49,16 +47,16 @@ public class TurretSubsystem implements Subsystem {
         shootMotorPrimary = hardwareMap.get(DcMotorEx.class, "turretShootPrimaryMotor");
         shootMotorSecondary = hardwareMap.get(DcMotorEx.class, "turretShootSecondaryMotor");
         aimServo = hardwareMap.get(Servo.class, "turretAimServo");
-        aimEncoder = hardwareMap.get(DcMotor.class, "turretAimEncoder");
+//        aimEncoder = hardwareMap.get(DcMotor.class, "turretAimEncoder");
 //        hallEffectSensor = hardwareMap.get(DigitalChannel.class, "turretHallEffectSensor");
         aprilTag = AprilTagProcessor.easyCreateWithDefaults();
-        visionPortal = VisionPortal.easyCreateWithDefaults(
-                hardwareMap.get(WebcamName.class, "turretCamera"), aprilTag);
+//        visionPortal = VisionPortal.easyCreateWithDefaults(
+//                hardwareMap.get(WebcamName.class, "turretCamera"), aprilTag);
 
         aimServo.setDirection(Servo.Direction.FORWARD);
 
-        shootMotorPrimary.setVelocityPIDFCoefficients(SHOOT_PID_P, SHOOT_PID_I, SHOOT_PID_D, SHOOT_PID_F);
-        shootMotorSecondary.setVelocityPIDFCoefficients(SHOOT_PID_P, SHOOT_PID_I, SHOOT_PID_D, SHOOT_PID_F);
+//        shootMotorPrimary.setVelocityPIDFCoefficients(SHOOT_PID_P, SHOOT_PID_I, SHOOT_PID_D, SHOOT_PID_F);
+//        shootMotorSecondary.setVelocityPIDFCoefficients(SHOOT_PID_P, SHOOT_PID_I, SHOOT_PID_D, SHOOT_PID_F);
         shootMotorPrimary.setDirection(DcMotorSimple.Direction.FORWARD);
         shootMotorSecondary.setDirection(DcMotorSimple.Direction.FORWARD);
 
@@ -88,7 +86,8 @@ public class TurretSubsystem implements Subsystem {
      * @return The current aim encoder position (in ticks) relative to the calibrated encoderZero.
      */
     private int getEncoderPosition() {
-        return aimEncoder.getCurrentPosition() - Globals.turretEncoderZero;
+        return 0;
+//        return aimEncoder.getCurrentPosition() - Globals.turretEncoderZero;
     }
 
     /**
@@ -134,8 +133,8 @@ public class TurretSubsystem implements Subsystem {
      * @param speed Desired shooting speed, in ticks/s. (With the shooter's effective 1:1 gear ratio, this is effectively equivalent to rot/s)
      */
     public void shoot(double speed) {
-        shootMotorPrimary.setVelocity(speed);
-        shootMotorSecondary.setVelocity(speed);
+        shootMotorPrimary.setPower(1);
+        shootMotorSecondary.setPower(1);
     }
 
     public void dump() {
@@ -223,7 +222,7 @@ public class TurretSubsystem implements Subsystem {
 
 //        telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
         telemetry.addData("Turret Calibrated?", Globals.turretIsCalibrated);
-        telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
+//        telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
         telemetry.addData("Turret Aim Position (ticks, zeroed)", getEncoderPosition());
         telemetry.addData("Turret Aim Zero (ticks)", Globals.turretEncoderZero);
         telemetry.addData("Turret Aim Zero (rad)", ticksToRadians(Globals.turretEncoderZero));
