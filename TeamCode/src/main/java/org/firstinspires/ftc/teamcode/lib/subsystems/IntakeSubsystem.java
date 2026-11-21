@@ -46,14 +46,24 @@ public class IntakeSubsystem implements Subsystem {
         deployServoRight.setPosition(0.45);
     }
 
+    private void starSpinInwards() {
+        // DO NOT CHANGE
+        starServoLeft.setPosition(1);
+        starServoRight.setPosition(0);
+    }
+
+    private void starStopSpin() {
+        starServoLeft.setPosition(0.5);
+        starServoRight.setPosition(0.5);
+    }
+
     /**
      * Intakes game pieces from the flower. Raises the intake bar, and spins the intake stars.
      */
     public void setFlower() {
         spinMotorLeft.setPower(1);
         spinMotorRight.setPower(1);
-        starServoLeft.setPosition(1);
-        starServoRight.setPosition(1);
+        starSpinInwards();
         raise();
     }
 
@@ -63,8 +73,7 @@ public class IntakeSubsystem implements Subsystem {
     public void setGround() {
         spinMotorLeft.setPower(1);
         spinMotorRight.setPower(1);
-        starServoLeft.setPosition(0);
-        starServoRight.setPosition(0);
+        starSpinInwards();
         lower();
     }
 
@@ -74,8 +83,7 @@ public class IntakeSubsystem implements Subsystem {
     public void off() {
         spinMotorLeft.setPower(0);
         spinMotorRight.setPower(0);
-        starServoLeft.setPosition(0.5);
-        starServoRight.setPosition(0.5);
+        starStopSpin();
         lower();
     }
 
