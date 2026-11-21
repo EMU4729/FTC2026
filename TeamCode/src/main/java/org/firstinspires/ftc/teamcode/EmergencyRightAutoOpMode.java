@@ -12,21 +12,24 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 
-@Autonomous(name = "Move Right Only")
+@Autonomous(name = "Move Forward Only (USE THIS)")
 public class EmergencyRightAutoOpMode extends OpMode {
     private Follower drive;
+//    private IntakeSubsystem intake;
 
     @Override
     public void init() {
         Scheduler.reset();
         drive = Constants.create(hardwareMap);
+//        intake = new IntakeSubsystem(hardwareMap, telemetry);
+//        intake.off();
     }
 
     @Override
     public void start() {
         schedule(sequential(
-                instant(() -> drive.manual(0, 1, 0)),
-                waitMs(200),
+                instant(() -> drive.manual(0.5, 0, 0)),
+                waitMs(1500),
                 instant(() -> drive.manual(0, 0, 0))
         ));
     }
@@ -34,5 +37,7 @@ public class EmergencyRightAutoOpMode extends OpMode {
     @Override
     public void loop() {
         Scheduler.execute();
+        drive.update();
+//        intake.periodic();
     }
 }
