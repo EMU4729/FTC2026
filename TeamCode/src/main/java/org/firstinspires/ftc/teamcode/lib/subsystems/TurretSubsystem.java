@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.lib.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -34,7 +33,7 @@ public class TurretSubsystem implements Subsystem {
     private final DcMotorEx shootMotorSecondary;
     private final Servo aimServo;
     private final DcMotor aimEncoder;
-    private final DigitalChannel hallEffectSensor;
+    //    private final DigitalChannel hallEffectSensor;
     private AprilTagProcessor aprilTag;
 
     private VisionPortal visionPortal;
@@ -51,7 +50,7 @@ public class TurretSubsystem implements Subsystem {
         shootMotorSecondary = hardwareMap.get(DcMotorEx.class, "turretShootSecondaryMotor");
         aimServo = hardwareMap.get(Servo.class, "turretAimServo");
         aimEncoder = hardwareMap.get(DcMotor.class, "turretAimEncoder");
-        hallEffectSensor = hardwareMap.get(DigitalChannel.class, "turretHallEffectSensor");
+//        hallEffectSensor = hardwareMap.get(DigitalChannel.class, "turretHallEffectSensor");
         aprilTag = AprilTagProcessor.easyCreateWithDefaults();
         visionPortal = VisionPortal.easyCreateWithDefaults(
                 hardwareMap.get(WebcamName.class, "turretCamera"), aprilTag);
@@ -159,27 +158,29 @@ public class TurretSubsystem implements Subsystem {
      * @return whether the turret was calibrated or not.
      */
     public boolean calibrate() {
+        return true;
+
         // get the rotation direction of the turret
-        int currentEncoderPosition = aimEncoder.getCurrentPosition();
-        if (currentEncoderPosition == previousEncoderPosition) return false;
-        boolean rotatingClockwise = currentEncoderPosition > previousEncoderPosition;
-
-        // check if the hall effect sensor was just triggered (rising edge)
-        boolean currentHallEffectState = hallEffectSensor.getState();
-        boolean hallEffectJustTriggered = !previousHallEffectState && currentHallEffectState;
-
-        if (hallEffectJustTriggered) {
-            if (rotatingClockwise) {
-                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_CLOCKWISE_INITIAL_VALUE;
-            } else {
-                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE;
-            }
-            Globals.turretIsCalibrated = true;
-        }
-
-        previousEncoderPosition = currentEncoderPosition;
-        previousHallEffectState = currentHallEffectState;
-        return hallEffectJustTriggered;
+//        int currentEncoderPosition = aimEncoder.getCurrentPosition();
+//        if (currentEncoderPosition == previousEncoderPosition) return false;
+//        boolean rotatingClockwise = currentEncoderPosition > previousEncoderPosition;
+//
+//        // check if the hall effect sensor was just triggered (rising edge)
+//        boolean currentHallEffectState = hallEffectSensor.getState();
+//        boolean hallEffectJustTriggered = !previousHallEffectState && currentHallEffectState;
+//
+//        if (hallEffectJustTriggered) {
+//            if (rotatingClockwise) {
+//                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_CLOCKWISE_INITIAL_VALUE;
+//            } else {
+//                Globals.turretEncoderZero = currentEncoderPosition + CALIBRATION_ANTICLOCKWISE_INITIAL_VALUE;
+//            }
+//            Globals.turretIsCalibrated = true;
+//        }
+//
+//        previousEncoderPosition = currentEncoderPosition;
+//        previousHallEffectState = currentHallEffectState;
+//        return hallEffectJustTriggered;
     }
 
     /**
@@ -220,7 +221,7 @@ public class TurretSubsystem implements Subsystem {
             autoAim();
         }
 
-        telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
+//        telemetry.addData("Turret Hall Effect Sensor State", hallEffectSensor.getState());
         telemetry.addData("Turret Calibrated?", Globals.turretIsCalibrated);
         telemetry.addData("Turret Aim Position (ticks, raw)", aimEncoder.getCurrentPosition());
         telemetry.addData("Turret Aim Position (ticks, zeroed)", getEncoderPosition());

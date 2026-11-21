@@ -13,7 +13,7 @@ public abstract class TeleopOpMode extends OpMode {
     //    private LEDSubsystem led;
     private IntakeSubsystem intake;
     private TurretSubsystem turret;
-    private boolean turretIsAuto = false;
+//    private boolean turretIsAuto = false;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -34,13 +34,17 @@ public abstract class TeleopOpMode extends OpMode {
 
     @Override
     public void loop() {
-        drive.manual(-gamepad2.left_stick_y, -gamepad2.left_stick_x, gamepad2.right_stick_x);
+        drive.manual(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
         drive.update();
 
         if (gamepad1.left_trigger_pressed) {
+            // this is actually flower for some reason
             intake.setGround();
         } else if (gamepad1.left_bumper) {
+            // this is actually ground for some reason
             intake.setFlower();
+        } else if (gamepad1.x) {
+            intake.reverse();
         } else {
             intake.off();
         }
@@ -53,22 +57,23 @@ public abstract class TeleopOpMode extends OpMode {
             turret.off();
         }
 
-        if (gamepad1.xWasPressed() && Globals.turretIsCalibrated) {
-            turretIsAuto = !turretIsAuto;
-            turret.setAuto(turretIsAuto);
-        }
 
-        if (gamepad1.dpad_left) {
-            turret.setManualPower(-0.5);
-        } else if (gamepad1.dpad_right) {
-            turret.setManualPower(0.5);
-        } else {
-            turret.setManualPower(0);
-        }
+//        if (gamepad1.xWasPressed() && Globals.turretIsCalibrated) {
+//            turretIsAuto = !turretIsAuto;
+//            turret.setAuto(turretIsAuto);
+//        }
 
-        if (!Globals.turretIsCalibrated) {
-            turret.calibrate();
-        }
+//        if (gamepad1.dpad_left) {
+//            turret.setManualPower(-0.5);
+//        } else if (gamepad1.dpad_right) {
+//            turret.setManualPower(0.5);
+//        } else {
+//            turret.setManualPower(0);
+//        }
+//
+//        if (!Globals.turretIsCalibrated) {
+//            turret.calibrate();
+//        }
 
 //        led.periodic();
         intake.periodic();
