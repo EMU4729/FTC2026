@@ -35,13 +35,15 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     private void raise() {
-        deployServoLeft.setPosition(0.5);
-        deployServoRight.setPosition(0.5);
+        // DO NOT CHANGE
+        deployServoLeft.setPosition(0.55);
+        deployServoRight.setPosition(0);
     }
 
     private void lower() {
-        deployServoLeft.setPosition(0.5);
-        deployServoRight.setPosition(0.5);
+        // DO NOT CHANGE
+        deployServoLeft.setPosition(0.35);
+        deployServoRight.setPosition(0.45);
     }
 
     /**
