@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.ManualDrive;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,7 +15,8 @@ public abstract class TeleopOpMode extends OpMode {
     //    private LEDSubsystem led;
     private IntakeSubsystem intake;
     private TurretSubsystem turret;
-//    private boolean turretIsAuto = false;
+    //    private boolean turretIsAuto = false;
+    private boolean isFieldCentric = true;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -34,8 +37,19 @@ public abstract class TeleopOpMode extends OpMode {
 
     @Override
     public void loop() {
-        drive.manual(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+        DrivePowers powers = isFieldCentric
+                ? ManualDrive.fieldCentric(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, drive.pose().heading())
+                : new DrivePowers(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x);
+        drive.manual(powers);
         drive.update();
+
+        if (gamepad1.startWasPressed()) {
+            isFieldCentric = !isFieldCentric;
+        }
+
+        if (gamepad1.backWasPressed()) {
+            drive.setPose(drive.pose().withHeading(0));
+        }
 
         if (gamepad1.left_trigger_pressed) {
             // this is actually flower for some reason
