@@ -15,16 +15,17 @@ import com.pedropathing.paths.Path;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
+import org.firstinspires.ftc.teamcode.lib.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.lib.subsystems.TurretSubsystem;
 
 public abstract class ShootParkAuto extends OpMode {
     private Follower drive;
     private TurretSubsystem turret;
+    private IntakeSubsystem intake;
 
     private final Pose start;
     private final Pose path1;
-    private final Pose point2;
-    private final Pose point2Control1;
+    private final Pose path1Control1;
 
     abstract boolean isRedAlliance();
 
@@ -35,26 +36,21 @@ public abstract class ShootParkAuto extends OpMode {
             poseFactory = poseFactory.mirrorAroundPoint(new Pose(70.75, 70.75));
         }
 
-        start = poseFactory.of(56, 8, 90);
-        path1 = poseFactory.of(55.8345, 31.8626, 90);
-        point2 = poseFactory.of(9.0758, 99.0169, 89.9041);
-        point2Control1 = poseFactory.of(8.9837, 44.0143, 0);
-    }
-
-
-    private Path startToShoot() {
-        return Paths.line(start, path1).linear(start, path1);
+        start = poseFactory.of(54.8415, 7.8345, 270);
+        path1 = poseFactory.of(11.1503, 97.8959, 270);
+        path1Control1 = poseFactory.of(11.0996, 13.8264, 0);
 
     }
 
     private Path shootToPark() {
-        return Paths.curve(path1, point2Control1, point2).tangent();
+        return Paths.curve(start, path1Control1, path1).linear(start, path1);
     }
 
     @Override
     public void init() {
         drive = Constants.create(hardwareMap);
         turret = new TurretSubsystem(hardwareMap, telemetry, isRedAlliance());
+        intake = new IntakeSubsystem(hardwareMap, telemetry);
         drive.setPose(start);
         drive.update();
         Scheduler.reset();
@@ -71,10 +67,14 @@ public abstract class ShootParkAuto extends OpMode {
     public void start() {
         schedule(
                 sequential(
-                        follow(drive, startToShoot()),
                         instant(() -> turret.shoot(5)),
-                        waitMs(5000),
-                        instant(() -> turret.off()),
+                        waitMs(4000),
+                        instant(() -> intake.setFlower()),
+                        waitMs(4000),
+                        instant(() -> {
+                            turret.off();
+                            intake.off();
+                        }),
                         follow(drive, shootToPark())
                 )
         );
