@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.lib.pedro.Constants;
 
-@Autonomous(name = "Move Forward Only (USE THIS)")
-public class EmergencyRightAutoOpMode extends OpMode {
+@Autonomous(name = "Move Forward Only (20s delay)")
+public class EmergencyForwardDelayAutoOpMode extends OpMode {
     private Follower drive;
 //    private IntakeSubsystem intake;
 
@@ -28,8 +28,9 @@ public class EmergencyRightAutoOpMode extends OpMode {
     @Override
     public void start() {
         schedule(sequential(
+                waitMs(20000),
                 instant(() -> drive.manual(0.5, 0, 0)),
-                waitMs(1500),
+                waitMs(2000),
                 instant(() -> drive.manual(0, 0, 0))
         ));
     }
