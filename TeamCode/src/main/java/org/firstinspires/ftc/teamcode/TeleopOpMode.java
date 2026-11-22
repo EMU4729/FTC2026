@@ -17,6 +17,7 @@ public abstract class TeleopOpMode extends OpMode {
     private TurretSubsystem turret;
     //    private boolean turretIsAuto = false;
     private boolean isFieldCentric = true;
+    private boolean isShooting = false;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -33,6 +34,7 @@ public abstract class TeleopOpMode extends OpMode {
     @Override
     public void start() {
         timer.reset();
+        turret.shoot(5);
     }
 
     @Override
@@ -63,13 +65,23 @@ public abstract class TeleopOpMode extends OpMode {
             intake.off();
         }
 
-        if (gamepad1.right_trigger_pressed) {
+        if (isShooting) {
             turret.shoot(5);
-        } else if (gamepad1.right_bumper) {
-            turret.dump();
         } else {
             turret.off();
         }
+
+        if (gamepad1.rightTriggerWasPressed()) {
+            isShooting = !isShooting;
+        }
+
+//        if (gamepad1.right_trigger_pressed) {
+//            turret.shoot(5);
+//        } else if (gamepad1.right_bumper) {
+//            turret.dump();
+//        } else {
+//            turret.off();
+//        }
 
 
 //        if (gamepad1.xWasPressed() && Globals.turretIsCalibrated) {
@@ -92,6 +104,7 @@ public abstract class TeleopOpMode extends OpMode {
 //        led.periodic();
         intake.periodic();
         turret.periodic();
+        telemetry.addData("Shooting?", isShooting);
         telemetry.addData("Field Relative Drive?", isFieldCentric);
         telemetry.update();
     }
